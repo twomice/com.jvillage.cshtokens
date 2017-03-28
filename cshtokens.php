@@ -288,7 +288,14 @@ function _cshtokens_append_pledge_token_values(&$values, &$contactIDs, $job = nu
             AND li.financial_type_id in ($financial_type_ids_string)
             AND ctrb.contribution_status_id = 1 -- 'completed'
             AND pp.id IS NULL
-            AND cr.id IS NULL
+            AND (
+              cr.id IS NULL -- Not associated with a recurring contribtuion
+              OR
+              cr.contribution_status_id != 5  -- Associated with a recurring
+                                              -- contribution that's not 'in
+                                              -- progress' (since that was
+                                              -- counted already)
+            )
         ) t
         GROUP BY t.contact_id, t.financial_type_id
       ";
